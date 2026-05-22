@@ -20,3 +20,15 @@ Route::patch('customers/{customer}/activate', [CustomerController::class, 'activ
 Route::patch('customers/{customer}/deactivate', [CustomerController::class, 'deactivate']);
 
 Route::apiResource('subscriptions', SubscriptionController::class);
+
+// /api/service
+// /api/service/{id}/activate
+// /api/service/{id}/deactivate
+
+
+// /api/customer
+// /api/customer/{id}/activate
+// /api/customer/{id}/deactivate
+
+
+// /api/subscription
