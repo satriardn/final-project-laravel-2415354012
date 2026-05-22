@@ -1,58 +1,561 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# ERP API - Laravel Web API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistem ERP sederhana berbasis Web API untuk mengelola layanan digital berbasis langganan.
 
-## About Laravel
+## Tech Stack
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Framework**: Laravel 11
+- **Database**: MySQL
+- **API Format**: JSON
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Base URL
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+```
+http://127.0.0.1:8000/api
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+---
 
-## Contributing
+## Modul Service
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Mengelola data layanan digital yang tersedia.
 
-## Code of Conduct
+### 1. Get All Services
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```
+GET /api/services
+```
 
-## Security Vulnerabilities
+**Response:**
+```json
+{
+    "success": true,
+    "message": "Services retrieved successfully",
+    "data": [...]
+}
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
-## License
+### 2. Get All Services by Status
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```
+GET /api/services?status=active
+GET /api/services?status=inactive
+```
+
+| Query Param | Value |
+|---|---|
+| `status` | `active` / `inactive` |
+
+**Response:**
+```json
+{
+    "success": true,
+    "message": "Services retrieved successfully",
+    "data": [...]
+}
+```
+
+---
+
+### 3. Get Service by ID
+
+```
+GET /api/services/{id}
+```
+
+**Response:**
+```json
+{
+    "success": true,
+    "message": "Service retrieved successfully",
+    "data": {
+        "id": 1,
+        "name": "Shared Hosting Basic",
+        "price": 50000,
+        "description": "Paket hosting basic untuk website sederhana",
+        "status": true,
+        "created_at": "...",
+        "updated_at": "..."
+    }
+}
+```
+
+---
+
+### 4. Create Service
+
+```
+POST /api/services
+```
+
+**Request Body:**
+```json
+{
+    "name": "Shared Hosting Basic",
+    "price": 50000,
+    "description": "Paket hosting basic untuk website sederhana",
+    "status": true
+}
+```
+
+| Field | Type | Required |
+|---|---|---|
+| `name` | string | ✅ |
+| `price` | integer | ✅ |
+| `description` | string | ❌ |
+| `status` | boolean | ❌ (default: `true`) |
+
+**Response:**
+```json
+{
+    "success": true,
+    "message": "Service created successfully",
+    "data": {...}
+}
+```
+
+---
+
+### 5. Update Service
+
+```
+PUT /api/services/{id}
+PATCH /api/services/{id}
+```
+
+**Request Body:**
+```json
+{
+    "name": "Shared Hosting Pro",
+    "price": 75000
+}
+```
+
+**Response:**
+```json
+{
+    "success": true,
+    "message": "Service updated successfully",
+    "data": {...}
+}
+```
+
+---
+
+### 6. Delete Service
+
+```
+DELETE /api/services/{id}
+```
+
+> ⚠️ Tidak dapat dihapus jika service masih memiliki subscription aktif.
+
+**Response:**
+```json
+{
+    "success": true,
+    "message": "Service deleted successfully",
+    "data": null
+}
+```
+
+---
+
+### 7. Change Status Service
+
+**Activate:**
+```
+PATCH /api/services/{id}/activate
+```
+
+**Deactivate:**
+```
+PATCH /api/services/{id}/deactivate
+```
+
+**Response:**
+```json
+{
+    "success": true,
+    "message": "Service activated successfully",
+    "data": {...}
+}
+```
+
+---
+
+## Modul Customer
+
+Mengelola data pelanggan yang terdaftar di sistem.
+
+### 1. Get All Customers
+
+```
+GET /api/customers
+```
+
+**Response:**
+```json
+{
+    "success": true,
+    "message": "Customers retrieved successfully",
+    "data": [...]
+}
+```
+
+---
+
+### 2. Get All Customers by Status
+
+```
+GET /api/customers?status=active
+GET /api/customers?status=inactive
+```
+
+| Query Param | Value |
+|---|---|
+| `status` | `active` / `inactive` |
+
+---
+
+### 3. Get Customer by ID
+
+```
+GET /api/customers/{id}
+```
+
+**Response:**
+```json
+{
+    "success": true,
+    "message": "Customer retrieved successfully",
+    "data": {
+        "id": 1,
+        "customer_id": "CUST-001",
+        "name": "Budi Santoso",
+        "email": "budi@example.com",
+        "phone": "081234567890",
+        "address": "Jl. Sudirman No. 1, Jakarta",
+        "status": true,
+        "created_at": "...",
+        "updated_at": "..."
+    }
+}
+```
+
+---
+
+### 4. Create Customer
+
+```
+POST /api/customers
+```
+
+**Request Body:**
+```json
+{
+    "customer_id": "CUST-001",
+    "name": "Budi Santoso",
+    "email": "budi@example.com",
+    "phone": "081234567890",
+    "address": "Jl. Sudirman No. 1, Jakarta",
+    "status": true
+}
+```
+
+| Field | Type | Required |
+|---|---|---|
+| `customer_id` | string, unique | ✅ |
+| `name` | string | ✅ |
+| `email` | string, unique | ❌ |
+| `phone` | string | ❌ |
+| `address` | string | ❌ |
+| `status` | boolean | ❌ (default: `true`) |
+
+**Response:**
+```json
+{
+    "success": true,
+    "message": "Customer created successfully",
+    "data": {...}
+}
+```
+
+---
+
+### 5. Update Customer
+
+```
+PUT /api/customers/{id}
+PATCH /api/customers/{id}
+```
+
+**Request Body:**
+```json
+{
+    "name": "Budi Santoso Updated",
+    "phone": "089999999999"
+}
+```
+
+**Response:**
+```json
+{
+    "success": true,
+    "message": "Customer updated successfully",
+    "data": {...}
+}
+```
+
+---
+
+### 6. Delete Customer
+
+```
+DELETE /api/customers/{id}
+```
+
+> ⚠️ Tidak dapat dihapus jika customer masih memiliki subscription.
+
+**Response:**
+```json
+{
+    "success": true,
+    "message": "Customer deleted successfully",
+    "data": null
+}
+```
+
+---
+
+### 7. Change Status Customer
+
+**Activate:**
+```
+PATCH /api/customers/{id}/activate
+```
+
+**Deactivate:**
+```
+PATCH /api/customers/{id}/deactivate
+```
+
+**Response:**
+```json
+{
+    "success": true,
+    "message": "Customer activated successfully",
+    "data": {...}
+}
+```
+
+---
+
+## Modul Subscription
+
+Mengelola data langganan customer terhadap layanan.
+
+### 1. Get All Subscriptions
+
+```
+GET /api/subscriptions
+```
+
+**Response:**
+```json
+{
+    "success": true,
+    "message": "Subscriptions retrieved successfully",
+    "data": [...]
+}
+```
+
+---
+
+### 2. Get All Subscriptions by Status
+
+```
+GET /api/subscriptions?status=active
+```
+
+| Query Param | Value |
+|---|---|
+| `status` | `active` / `inactive` / `trial` / `isolir` / `dismantle` |
+
+---
+
+### 3. Get Subscription by ID
+
+```
+GET /api/subscriptions/{id}
+```
+
+**Response:**
+```json
+{
+    "success": true,
+    "message": "Subscription retrieved successfully",
+    "data": {
+        "id": 1,
+        "customer_id": 1,
+        "service_id": 1,
+        "start_date": "2026-01-01",
+        "end_date": "2027-01-01",
+        "status": "active",
+        "customer": {...},
+        "service": {...},
+        "created_at": "...",
+        "updated_at": "..."
+    }
+}
+```
+
+---
+
+### 4. Create Subscription
+
+```
+POST /api/subscriptions
+```
+
+**Request Body:**
+```json
+{
+    "customer_id": 1,
+    "service_id": 1,
+    "start_date": "2026-05-22",
+    "end_date": "2027-05-22",
+    "status": "active"
+}
+```
+
+| Field | Type | Required |
+|---|---|---|
+| `customer_id` | integer, exists | ✅ |
+| `service_id` | integer, exists | ✅ |
+| `start_date` | date | ❌ |
+| `end_date` | date, after start_date | ❌ |
+| `status` | enum | ❌ (default: `active`) |
+
+**Status yang tersedia:** `active`, `inactive`, `trial`, `isolir`, `dismantle`
+
+**Response:**
+```json
+{
+    "success": true,
+    "message": "Subscription created successfully",
+    "data": {...}
+}
+```
+
+---
+
+### 5. Update Subscription
+
+```
+PUT /api/subscriptions/{id}
+PATCH /api/subscriptions/{id}
+```
+
+**Request Body:**
+```json
+{
+    "status": "isolir",
+    "end_date": "2026-12-31"
+}
+```
+
+**Response:**
+```json
+{
+    "success": true,
+    "message": "Subscription updated successfully",
+    "data": {...}
+}
+```
+
+---
+
+## Ringkasan Endpoint
+
+### Service
+
+| Method | Endpoint | Fungsi |
+|---|---|---|
+| GET | `/api/services` | Get all services |
+| GET | `/api/services?status=active` | Get all services by status |
+| GET | `/api/services/{id}` | Get service by ID |
+| POST | `/api/services` | Create service |
+| PUT/PATCH | `/api/services/{id}` | Update service |
+| DELETE | `/api/services/{id}` | Delete service |
+| PATCH | `/api/services/{id}/activate` | Activate service |
+| PATCH | `/api/services/{id}/deactivate` | Deactivate service |
+
+### Customer
+
+| Method | Endpoint | Fungsi |
+|---|---|---|
+| GET | `/api/customers` | Get all customers |
+| GET | `/api/customers?status=active` | Get all customers by status |
+| GET | `/api/customers/{id}` | Get customer by ID |
+| POST | `/api/customers` | Create customer |
+| PUT/PATCH | `/api/customers/{id}` | Update customer |
+| DELETE | `/api/customers/{id}` | Delete customer |
+| PATCH | `/api/customers/{id}/activate` | Activate customer |
+| PATCH | `/api/customers/{id}/deactivate` | Deactivate customer |
+
+### Subscription
+
+| Method | Endpoint | Fungsi |
+|---|---|---|
+| GET | `/api/subscriptions` | Get all subscriptions |
+| GET | `/api/subscriptions?status=active` | Get all subscriptions by status |
+| GET | `/api/subscriptions/{id}` | Get subscription by ID |
+| POST | `/api/subscriptions` | Create subscription |
+| PUT/PATCH | `/api/subscriptions/{id}` | Update subscription |
+
+---
+
+## HTTP Response Code
+
+| Code | Keterangan |
+|---|---|
+| `200` | OK — Request berhasil |
+| `201` | Created — Data berhasil dibuat |
+| `404` | Not Found — Data tidak ditemukan |
+| `422` | Unprocessable — Validasi gagal |
+
+---
+
+## Database Schema
+
+```
+customers
+├── id (PK)
+├── customer_id (unique)
+├── name
+├── email (unique)
+├── phone
+├── address
+├── status (boolean)
+└── timestamps
+
+services
+├── id (PK)
+├── name
+├── price (integer, Rupiah)
+├── description
+├── status (boolean)
+└── timestamps
+
+subscriptions
+├── id (PK)
+├── customer_id (FK → customers.id)
+├── service_id (FK → services.id)
+├── start_date
+├── end_date
+├── status (active|inactive|trial|isolir|dismantle)
+└── timestamps
+```
