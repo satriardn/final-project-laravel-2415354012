@@ -13,32 +13,16 @@ use Illuminate\Validation\Rules\Enum;
 
 class SubscriptionController extends Controller
 {
-    public function index(Request $request): JsonResponse
+    public function index(): JsonResponse
     {
-        $status = $request->query('status');
-        $validStatuses = ['active', 'inactive', 'trial', 'isolir', 'dismantle'];
-
-        $query = Subscription::query()->with(['customer', 'service']);
-
-        if ($status !== null) {
-            if (!in_array($status, $validStatuses, true)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Validation failed',
-                    'errors'  => [
-                    'status' => ['nullable', new Enum(SubscriptionStatus::class)],
-                    ],
-                ], 422);
-            }
-            $query->where('status', $status);
-        }
-
-        $subscriptions = $query->latest()->get();
+        $subscriptions = Subscription::query()
+            ->with(["customer", "service"])
+            ->get();
 
         return response()->json([
-            'success' => true,
-            'message' => 'Subscriptions retrieved successfully',
-            'data'    => $subscriptions,
+            "success" => true,
+            "message" => "Subscriptions retrieved successfully",
+            "data" => $subscriptions,
         ]);
     }
 
@@ -49,7 +33,7 @@ class SubscriptionController extends Controller
             'service_id'  => ['required', 'integer', 'exists:services,id'],
             'start_date'  => ['nullable', 'date'],
             'end_date'    => ['nullable', 'date', 'after_or_equal:start_date'],
-            'status'      => ['nullable', 'in:active,inactive,trial,isolir,dismantle'],
+            'status'      => ['nullable', new Enum(SubscriptionStatus::class)],
         ]);
 
         $data['status'] = $data['status'] ?? 'active';
@@ -148,6 +132,13 @@ private function changeStatus(int $subscriptionId, string $status): JsonResponse
         return response()->json([
             'success' => false,
             'message' => 'Subscription not found',
+        ], 404);
+    }
+
+    if (SubscriptionStatus::DISMANTLE->value) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Subscription are dismantle please create new Sub',
         ], 404);
     }
 
