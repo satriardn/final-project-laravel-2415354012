@@ -8,6 +8,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Subscription;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Enums\SubscriptionStatus;
+use Illuminate\Validation\Rules\Enum;
 
 class SubscriptionController extends Controller
 {
@@ -24,7 +26,7 @@ class SubscriptionController extends Controller
                     'success' => false,
                     'message' => 'Validation failed',
                     'errors'  => [
-                        'status' => ['The selected status is invalid.'],
+                    'status' => ['nullable', new Enum(SubscriptionStatus::class)],
                     ],
                 ], 422);
             }
@@ -113,24 +115,50 @@ class SubscriptionController extends Controller
         ]);
     }
 
-    public function destroy(int $subscription): JsonResponse
-    {
-        $subscription = Subscription::query()->find($subscription);
+    public function activate(int $subscription): JsonResponse
+{
+    return $this->changeStatus($subscription, SubscriptionStatus::ACTIVE->value);
+}
 
-        if (!$subscription) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Subscription not found',
-                'errors'  => [],
-            ], 404);
-        }
+public function deactivate(int $subscription): JsonResponse
+{
+    return $this->changeStatus($subscription, SubscriptionStatus::INACTIVE->value);
+}
 
-        $subscription->delete();
+public function trial(int $subscription): JsonResponse
+{
+    return $this->changeStatus($subscription, SubscriptionStatus::TRIAL->value);
+}
 
+public function isolir(int $subscription): JsonResponse
+{
+    return $this->changeStatus($subscription, SubscriptionStatus::ISOLIR->value);
+}
+
+public function dismantle(int $subscription): JsonResponse
+{
+    return $this->changeStatus($subscription, SubscriptionStatus::DISMANTLE->value);
+}
+
+private function changeStatus(int $subscriptionId, string $status): JsonResponse
+{
+    $subscription = Subscription::find($subscriptionId);
+
+    if (!$subscription) {
         return response()->json([
-            'success' => true,
-            'message' => 'Subscription deleted successfully',
-            'data'    => null,
-        ]);
+            'success' => false,
+            'message' => 'Subscription not found',
+        ], 404);
     }
+
+    $subscription->update([
+        'status' => $status
+    ]);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Subscription status updated successfully',
+        'data' => $subscription,
+    ]);
+}
 }
