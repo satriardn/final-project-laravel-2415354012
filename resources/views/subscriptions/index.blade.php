@@ -36,7 +36,7 @@
                             $statusStyles = match(strtolower($subscription['status'])) {
                                 'active' => ['bg' => 'bg-emerald-50 text-emerald-700 border border-emerald-200/40', 'dot' => 'bg-emerald-500'],
                                 'trial' => ['bg' => 'bg-amber-50 text-amber-700 border border-amber-200/40', 'dot' => 'bg-amber-500'],
-                                'isolir' => ['bg' => 'bg-rose-50 text-rose-700 border border-rose-200/40', 'dot' => 'bg-rose-500'],
+                                'isolir' => ['bg' => 'bg-orange-100 text-rose-700 border border-rose-200/40', 'dot' => 'bg-rose-500'],
                                 'dismantle' => ['bg' => 'bg-slate-50 text-slate-600 border border-slate-200/50', 'dot' => 'bg-slate-400'],
                                 'inactive' => ['bg' => 'bg-rose-50 text-rose-700 border border-rose-200/40', 'dot' => 'bg-rose-500'],
                                 default => ['bg' => 'bg-slate-50 text-slate-600 border border-slate-200/50', 'dot' => 'bg-slate-400'],

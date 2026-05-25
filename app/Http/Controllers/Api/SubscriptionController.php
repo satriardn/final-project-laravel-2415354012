@@ -86,7 +86,7 @@ class SubscriptionController extends Controller
             'service_id'  => ['sometimes', 'integer', 'exists:services,id'],
             'start_date'  => ['nullable', 'date'],
             'end_date'    => ['nullable', 'date', 'after_or_equal:start_date'],
-            'status'      => ['nullable', 'in:active,inactive,trial,isolir,dismantle'],
+            'status'      => ['nullable', new Enum(SubscriptionStatus::class)],
         ]);
 
         $subscription->update($data);
@@ -135,11 +135,12 @@ private function changeStatus(int $subscriptionId, string $status): JsonResponse
         ], 404);
     }
 
-    if (SubscriptionStatus::DISMANTLE->value) {
+    // jika sudah dismantle tidak bisa di ubah ke status lain
+    if ($subscription->status === 'dismantle') {
         return response()->json([
             'success' => false,
-            'message' => 'Subscription are dismantle please create new Sub',
-        ], 404);
+            'message' => 'Subscription is dismantled, please create a new subscription.',
+        ], 400);
     }
 
     $subscription->update([
